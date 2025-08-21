@@ -1,0 +1,83 @@
+{% extends 'school/homebase.html' %}
+
+{% block content %}
+
+<head>
+  <style media="screen">
+    a:link {
+      text-decoration: none;
+    }
+
+    .note {
+      text-align: center;
+      height: 80px;
+      background: -webkit-linear-gradient(left, #0072ff, #8811c5);
+      color: #fff;
+      font-weight: bold;
+      line-height: 80px;
+    }
+
+    .form-content {
+      padding: 5%;
+      border: 1px solid #ced4da;
+      margin-bottom: 2%;
+    }
+
+    .form-control {
+      border-radius: 1.5rem;
+    }
+
+    .btnSubmit {
+      border: none;
+      border-radius: 1.5rem;
+      padding: 1%;
+      width: 20%;
+      cursor: pointer;
+      background: #0062cc;
+      color: #fff;
+    }
+  </style>
+
+</head>
+
+<body>
+  {% include "school/navbar.html" %}
+  <br>
+  <br>
+  <br>
+  <br>
+
+  <!--- admin approval pending page by sumit  ---------->
+  <div class="container register-form">
+    <div class="form">
+      <div class="note">
+        <p>Admin Account Approval Pending</p>
+      </div>
+
+      <div class="form-content">
+        <div class="row">
+          <div class="col-md-12">
+            <div class="form-group">
+              <h4 style="text-align: center; color: #0072ff;">Your admin account is pending approval</h4>
+              <p style="text-align: center;">Please wait for an existing admin to approve your account. You will receive an email notification once your account is approved.</p>
+              <br>
+              <div style="text-align: center;">
+                <a href="/logout" class="btn btn-primary">Logout</a>
+                <a href="/" class="btn btn-secondary">Go to Homepage</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!--
+        written By : sumit kumar
+        facebook : fb.com/sumit.luv
+        -->
+
+  {% include "school/footer.html" %}
+</body>
+
+{% endblock content %} 

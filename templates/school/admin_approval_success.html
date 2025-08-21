@@ -1,0 +1,36 @@
+{% extends 'school/homebase.html' %}
+
+{% block content %}
+<head>
+  <style media="screen">
+    .alert {
+      margin-left: 25%;
+      margin-right: 25%;
+      padding: 20px;
+      background-color: #4CAF50;
+      color: white;
+      text-align: center;
+      border-radius: 5px;
+    }
+    .container {
+      margin-top: 100px;
+    }
+  </style>
+</head>
+
+<div class="container">
+  <div class="alert">
+    <h3>Admin Account {{ action|title }} Successfully!</h3>
+    <p><strong>{{ admin_name }}</strong> has been {{ action }}.</p>
+    {% if action == 'approved' %}
+      <p>An approval email has been sent to the admin.</p>
+    {% else %}
+      <p>A rejection email has been sent to the applicant.</p>
+    {% endif %}
+    <br>
+    <a href="/admin-approve-admin" class="btn btn-primary">Back to Admin Management</a>
+    <a href="/" class="btn btn-secondary">Go to Homepage</a>
+  </div>
+</div>
+
+{% endblock content %} 

@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+
+{% load widget_tweaks %}
+<html lang="en" dir="ltr">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <title>SARZEETECH</title>
+  <style type="text/css">
+    body {
+      color: #aa082e;
+      background-color: #b6bde7;
+      font-family: 'Roboto', sans-serif;
+    }
+
+    a:link {
+      text-decoration: none;
+    }
+
+    .note {
+      text-align: center;
+      height: 80px;
+      background: -webkit-linear-gradient(left, #0072ff, #8811c5);
+      color: #fff;
+      font-weight: bold;
+      line-height: 80px;
+    }
+
+    .form-content {
+      padding: 5%;
+      border: 1px solid #ced4da;
+      margin-bottom: 2%;
+      max-width: 860px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .form-control {
+      border-radius: 1.5rem;
+      max-width: 360px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    .btnSubmit {
+      border: none;
+      border-radius: 1.5rem;
+      padding: 1%;
+      width: 20%;
+      cursor: pointer;
+      background: #0062cc;
+      color: #fff;
+      display: block;
+      margin: 20px auto 0 auto;
+    }
+
+    .register-form {
+      max-width: 960px;
+      margin: 0 auto;
+    }
+
+    .form-group {
+      text-align: center;
+    }
+
+    @media (max-width: 768px) {
+      .btnSubmit {
+        width: 60%;
+      }
+    }
+  </style>
+
+</head>
+
+
+<body>
+  {% include "school/navbar.html" %}
+  <br>
+  <br>
+  <br>
+  <br>
+
+  <!--- signup page for teacher by admin(sumit)  ---------->
+  <form method="post">
+    {% csrf_token %}
+    <div class="container register-form">
+      <div class="form">
+        <div class="note">
+          <p>Add New Admin To School</p>
+        </div>
+
+        <div class="form-content">
+          <div class="row">
+            <div class="col-md-12">
+              <div class="form-group">
+                {% render_field form.first_name class="form-control" placeholder="First Name" %}
+              </div>
+              <div class="form-group">
+                {% render_field form.last_name class="form-control" placeholder="Last Name" %}
+              </div>
+              <div class="form-group">
+                {% render_field form.email class="form-control" placeholder="Email Address" %}
+              </div>
+              <div class="form-group">
+                {% render_field form.username class="form-control" placeholder="Username" %}
+              </div>
+              <div class="form-group">
+                {% render_field form.password class="form-control" placeholder="Password" %}
+              </div>
+              <div class="form-group">
+                {% render_field form.confirm_password class="form-control" placeholder="Confirm Password" %}
+              </div>
+            </div>
+          </div>
+          <button type="submit" class="btnSubmit">Submit</button>
+          <div class="text-center">Already have an account? <a href="adminlogin">Login here</a></div>
+        </div>
+      </div>
+    </div>
+
+  </form>
+
+  {% include "school/footer.html" %}
+</body>
+
+</html>
