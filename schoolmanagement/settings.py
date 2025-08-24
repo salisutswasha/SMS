@@ -7,7 +7,8 @@ from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 TEMPLATE_DIR = BASE_DIR / "templates"
-STATIC_DIR = BASE_DIR / "static"
+STATIC_URL = '/static/'
+STATIC_DIR = BASE_DIR / "staticfiles"
 
 # -----------------------------------------------------------------------------
 # Core security & debug
@@ -66,12 +67,27 @@ WSGI_APPLICATION = "schoolmanagement.wsgi.application"
 # -----------------------------------------------------------------------------
 # Database
 # -----------------------------------------------------------------------------
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+import dj_database_url
+
+DATABASE_URL = os.getenv("postgresql://schoolmanagementsystem_13o3_user:YkyHHy4A2JxIF5y9jn1hcce5Txfhzh6n@dpg-d2l1t7ruibrs73eq0mug-a.oregon-postgres.render.com/schoolmanagementsystem_13o3", "")
+if DATABASE_URL:
+    # Connect to Render Postgres
+    DATABASES = {
+        'default': dj_database_url.config(
+            default=DATABASE_URL,
+            conn_max_age=600,
+            ssl_require=True  # Render requires SSL
+        )
     }
-}
+else:
+    # Local SQLite fallback
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
+    }
+
 
 # -----------------------------------------------------------------------------
 # Password validation
@@ -95,7 +111,7 @@ USE_TZ = True
 # -----------------------------------------------------------------------------
 # Static files
 # -----------------------------------------------------------------------------
-STATIC_URL = "/static/"
+STATIC_URL = "/staticfiles/"
 STATICFILES_DIRS = [STATIC_DIR]
 
 # -----------------------------------------------------------------------------
