@@ -34,10 +34,12 @@ class TeacherExtra(models.Model):
 
 
 # Student Extra Information Model
+# Student Extra Information Model
 class StudentExtra(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
    # gender = models.CharField(max_length=10, choices=[('Male', 'Male'), ('Female', 'Female')])
     cl = models.CharField("Class", max_length=40, choices=classes, null=True, blank=True)
+    roll = models.CharField("Roll Number", max_length=10, null=True, blank=True)
     mobile = models.CharField(max_length=20, null=True, blank=True)
     email = models.EmailField(null=True, blank=True)
     date_of_birth = models.DateField("Date of Birth", null=True, blank=True)
@@ -59,16 +61,22 @@ class StudentExtra(models.Model):
     def __str__(self):
         return self.user.first_name
 
+STATUS_CHOICES = (
+    ('Present', 'Present'),
+    ('Absent', 'Absent'),
+)
 
 # Attendance Model
-STATUS_CHOICES = [('Present', 'Present'), ('Absent', 'Absent')]
-
+# Attendance Model
 class Attendance(models.Model):
     student = models.ForeignKey(StudentExtra, on_delete=models.CASCADE)
+    roll = models.CharField(max_length=10, null=True, blank=True)
     date = models.DateField()
     cl = models.CharField(max_length=10)
     present_status = models.CharField(max_length=10, choices=STATUS_CHOICES)
 
+    def __str__(self):
+        return f"{self.student.user.username} - {self.date} - {self.present_status}"
 
 # Notice Model
 class Notice(models.Model):

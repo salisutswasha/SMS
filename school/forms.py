@@ -153,7 +153,6 @@ class TeacherExtraForm(forms.ModelForm):
 
 
 
-
 #for Attendance related form
 presence_choices=(('Present','Present'),('Absent','Absent'))
 class AttendanceForm(forms.Form):

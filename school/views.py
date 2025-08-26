@@ -7,8 +7,8 @@ from django.http import HttpResponseRedirect
 from django.contrib.auth.decorators import login_required,user_passes_test
 from django.conf import settings
 from django.core.mail import send_mail
-from django.contrib import messages  # <-- added
-
+from django.contrib import messages  
+from django.utils import timezone
 def home_view(request):
     if request.user.is_authenticated:
         return HttpResponseRedirect('afterlogin')
@@ -110,20 +110,33 @@ def teacher_signup_view(request):
     if request.method=='POST':
         form1=forms.TeacherUserForm(request.POST)
         form2=forms.TeacherExtraForm(request.POST)
+        
+        print(f"Form1 is valid: {form1.is_valid()}")
+        print(f"Form2 is valid: {form2.is_valid()}")
+        
         if form1.is_valid() and form2.is_valid():
+            print("Both forms are valid, creating teacher...")
             user=form1.save()
             user.set_password(user.password)
             user.save()
+            
             f2=form2.save(commit=False)
             f2.user=user
+            f2.date_of_application = timezone.now().date()  # Set application date
+            f2.status = False  # Explicitly set status to False
             user2=f2.save()
+            print(f"TeacherExtra created with status: {f2.status}")
 
             my_teacher_group = Group.objects.get_or_create(name='TEACHER')
             my_teacher_group[0].user_set.add(user)
+            print(f"Teacher added to group: {my_teacher_group[0].name}")
 
+        else:
+            print(f"Form1 errors: {form1.errors}")
+            print(f"Form2 errors: {form2.errors}")
+        
         return HttpResponseRedirect('teacherlogin')
     return render(request,'school/teachersignup.html',context=mydict)
-
 # --- UPDATED: role checks -----------------------------------------------------
 
 # Treat superusers as admins as well
@@ -150,11 +163,14 @@ def afterlogin_view(request):
         else:
             return render(request,'school/admin_wait_for_approval.html')
 
-    elif is_teacher(request.user):
-        accountapproval=models.TeacherExtra.objects.filter(user_id=request.user.id,status=True)
-        if accountapproval:
-            return redirect('teacher-dashboard')
-        else:
+    elif is_teacher(request.user):                    # User is in TEACHER group
+        accountapproval = models.TeacherExtra.objects.filter(
+            user_id=request.user.id,
+            status=True                               # Check if approved
+        )
+        if accountapproval:                          # If approved
+            return redirect('teacher-dashboard')    # → Dashboard
+        else:                                       # If NOT approved
             return render(request,'school/teacher_wait_for_approval.html')
 
     elif is_student(request.user):
@@ -245,18 +261,26 @@ def admin_view_teacher_view(request):
     teachers=models.TeacherExtra.objects.all().filter(status=True)
     return render(request,'school/admin_view_teacher.html',{'teachers':teachers})
 
-@login_required(login_url='adminlogin')
-@user_passes_test(is_admin)
+# Teachers waiting for approval
 def admin_approve_teacher_view(request):
-    teachers=models.TeacherExtra.objects.all().filter(status=False)
-    return render(request,'school/admin_approve_teacher.html',{'teachers':teachers})
+    print("Checking for pending teachers...")
+    teachers = models.TeacherExtra.objects.all().filter(status=False)
+    print(f"Found {teachers.count()} pending teachers")
+    for teacher in teachers:
+        print(f"Teacher: {teacher.username.first_name} {teacher.username.last_name}, status: {teacher.status}")
+    return render(request, 'school/admin_approve_teacher.html', {'teachers': teachers})
+    
+# Students waiting for approval  
+def admin_approve_student_view(request):
+    students = models.StudentExtra.objects.all().filter(status=False)
+    return render(request, 'school/admin_approve_student.html', {'students': students})
 
 @login_required(login_url='adminlogin')
 @user_passes_test(is_admin)
-def approve_teacher_view(request,pk):
-    teacher=models.TeacherExtra.objects.get(id=pk)
-    teacher.status=True
-    teacher.save()
+def approve_teacher_view(request, pk):
+    teacher = models.TeacherExtra.objects.get(id=pk)
+    teacher.status = True                    # Change status to True
+    teacher.save()                           # Save to database
     return redirect(reverse('admin-approve-teacher'))
 
 @login_required(login_url='adminlogin')
