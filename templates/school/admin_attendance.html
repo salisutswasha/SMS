@@ -1,134 +1,80 @@
 {% extends 'school/adminbase.html' %}
 
-
-
 {% block content %}
 
 <head>
-
   <link href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
   <script src="//netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.min.js"></script>
   <script src="//code.jquery.com/jquery-1.11.1.min.js"></script>
 
   <style media="screen">
-    a:link {
-      text-decoration: none;
-    }
-
-    a:link {
-      text-decoration: none;
-    }
-
-    h6 {
-      text-align: center;
-    }
-
-    .row {
-      margin: 100px;
-    }
+    a:link { text-decoration: none; }
+    h6 { text-align: center; }
+    .row { margin: 100px; }
   </style>
-
 </head>
 
-
-<!--
-written By : sumit kumar
-facebook : fb.com/sumit.luv
--->
-
-
 <div class="container">
-
   <div class="row">
-
     <div class="panel panel-primary">
       <div class="panel-heading">
         <h6 class="panel-title">Attendance</h6>
-
       </div>
 
       <table class="table table-hover" id="dev-table">
         <thead>
-
           <tr>
-            <th>Class Name</th>
+            <th>Group</th>
+            <th>Total Students</th>
             <th>Take Attendance</th>
             <th>View Attendance</th>
           </tr>
         </thead>
 
-        <tr>
-          <td> One</td>
-          <td><a class="btn btn-primary btn-xs" href="{% url 'admin-take-attendance' 'one'  %}"><span class="glyphicon glyphicon-plus"></span></a></td>
-          <td><a class="btn btn-danger btn-xs" href="{% url 'admin-view-attendance' 'one'  %}"><span class="glyphicon glyphicon-eye-open"></span></a></td>
-        </tr>
-
-        <tr>
-          <td> Two</td>
-          <td><a class="btn btn-primary btn-xs" href="{% url 'admin-take-attendance' 'two'  %}"><span class="glyphicon glyphicon-plus"></span></a></td>
-          <td><a class="btn btn-danger btn-xs" href="{% url 'admin-view-attendance' 'two'  %}"><span class="glyphicon glyphicon-eye-open"></span></a></td>
-        </tr>
-
-        <tr>
-          <td> Three</td>
-          <td><a class="btn btn-primary btn-xs" href="{% url 'admin-take-attendance' 'three'  %}"><span class="glyphicon glyphicon-plus"></span></a></td>
-          <td><a class="btn btn-danger btn-xs" href="{% url 'admin-view-attendance' 'three'  %}"><span class="glyphicon glyphicon-eye-open"></span></a></td>
-        </tr>
-
-        <tr>
-          <td> Four</td>
-          <td><a class="btn btn-primary btn-xs" href="{% url 'admin-take-attendance' 'four'  %}"><span class="glyphicon glyphicon-plus"></span></a></td>
-          <td><a class="btn btn-danger btn-xs" href="{% url 'admin-view-attendance' 'four'  %}"><span class="glyphicon glyphicon-eye-open"></span></a></td>
-        </tr>
-
-        <tr>
-          <td> Five</td>
-          <td><a class="btn btn-primary btn-xs" href="{% url 'admin-take-attendance' 'five'  %}"><span class="glyphicon glyphicon-plus"></span></a></td>
-          <td><a class="btn btn-danger btn-xs" href="{% url 'admin-view-attendance' 'five'  %}"><span class="glyphicon glyphicon-eye-open"></span></a></td>
-        </tr>
-
-        <tr>
-          <td> Six</td>
-          <td><a class="btn btn-primary btn-xs" href="{% url 'admin-take-attendance' 'six'  %}"><span class="glyphicon glyphicon-plus"></span></a></td>
-          <td><a class="btn btn-danger btn-xs" href="{% url 'admin-view-attendance' 'six'  %}"><span class="glyphicon glyphicon-eye-open"></span></a></td>
-        </tr>
-
-        <tr>
-          <td> Seven</td>
-          <td><a class="btn btn-primary btn-xs" href="{% url 'admin-take-attendance' 'seven'  %}"><span class="glyphicon glyphicon-plus"></span></a></td>
-          <td><a class="btn btn-danger btn-xs" href="{% url 'admin-view-attendance' 'seven'  %}"><span class="glyphicon glyphicon-eye-open"></span></a></td>
-        </tr>
-
-        <tr>
-          <td> Eight</td>
-          <td><a class="btn btn-primary btn-xs" href="{% url 'admin-take-attendance' 'eight'  %}"><span class="glyphicon glyphicon-plus"></span></a></td>
-          <td><a class="btn btn-danger btn-xs" href="{% url 'admin-view-attendance' 'eight'  %}"><span class="glyphicon glyphicon-eye-open"></span></a></td>
-        </tr>
-
-        <tr>
-          <td> Nine</td>
-          <td><a class="btn btn-primary btn-xs" href="{% url 'admin-take-attendance' 'nine'  %}"><span class="glyphicon glyphicon-plus"></span></a></td>
-          <td><a class="btn btn-danger btn-xs" href="{% url 'admin-view-attendance' 'nine'  %}"><span class="glyphicon glyphicon-eye-open"></span></a></td>
-        </tr>
-
-        <tr>
-          <td> Ten</td>
-          <td><a class="btn btn-primary btn-xs" href="{% url 'admin-take-attendance' 'ten'  %}"><span class="glyphicon glyphicon-plus"></span></a></td>
-          <td><a class="btn btn-danger btn-xs" href="{% url 'admin-view-attendance' 'ten'  %}"><span class="glyphicon glyphicon-eye-open"></span></a></td>
-        </tr>
-
+        <tbody>
+          <tr>
+            <td>All Students</td>
+            <td>
+              {% if students %}
+                {{ students|length }}
+              {% else %}
+                —
+              {% endif %}
+            </td>
+            <td>
+              <a class="btn btn-primary btn-xs" href="{% url 'admin-take-attendance' 'all' %}">
+                <span class="glyphicon glyphicon-plus"></span>
+              </a>
+            </td>
+            <td>
+              <a class="btn btn-danger btn-xs" href="{% url 'admin-view-attendance' 'all' %}">
+                <span class="glyphicon glyphicon-eye-open"></span>
+              </a>
+            </td>
+          </tr>
+        </tbody>
       </table>
+
+      {# Optional: quick peek list so you "fetch details of students" right here #}
+      <div class="panel-body" style="padding-top:0;">
+        <h5>Students Preview</h5>
+        <ul class="list-unstyled" style="max-height:220px; overflow:auto;">
+          {% if students %}
+            {% for s in students %}
+              <li>
+                {{ s.get_name }} — {{ s.gender|default:"—" }} — {{ s.mobile|default:"—" }}
+              </li>
+            {% empty %}
+              <li>No students found.</li>
+            {% endfor %}
+          {% else %}
+            <li>No students loaded in context. (Pass <code>students</code> from the view.)</li>
+          {% endif %}
+        </ul>
+      </div>
+
     </div>
-
-
   </div>
 </div>
-
-
-<!--
-      written By : sumit kumar
-      facebook : fb.com/sumit.luv
-      -->
-
 
 {% endblock content %}

@@ -1,88 +1,140 @@
 {% extends 'school/adminbase.html' %}
-
 {% load widget_tweaks %}
 
-
-
 {% block content %}
-
 <head>
-
   <link href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
   <script src="//netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.min.js"></script>
   <script src="//code.jquery.com/jquery-1.11.1.min.js"></script>
-
-  <style media="screen">
-    a:link {
-      text-decoration: none;
-    }
-
-    h6 {
-      text-align: center;
-    }
-
-    .row {
-      margin: 100px;
-    }
-
-    .btnSubmit {
-      text-align: center;
-    }
+  <style>
+    .row { margin: 60px 0; }
+    .panel { border-radius: 8px; }
+    .panel-heading { padding: 14px 18px; }
+    .panel-title { text-align: center; margin: 0; font-weight: 600; }
+    .form-inline .form-control { margin-right: 8px; }
+    .table thead th { white-space: nowrap; }
+    .badge-yes { background: #28a745; }
+    .badge-no  { background: #dc3545; }
   </style>
-
 </head>
 
-
-
-
-<form class="" method="post">
+<form method="post">
+  {% csrf_token %}
   <div class="container">
-
     <div class="row">
-
       <div class="panel panel-primary">
         <div class="panel-heading">
           <h6 class="panel-title">Attendance</h6>
-
         </div>
 
-        <table class="table table-hover" id="dev-table">
-          <thead>
+        <div class="panel-body">
+          <div class="form-group" style="max-width: 320px;">
+            <label for="id_date">Attendance Date</label>
+            {% render_field aform.date class="form-control" placeholder="YYYY-MM-DD" %}
+          </div>
 
-            <tr>
-              <th>Student Name</th>
-              <th>Present/Absent</th>
-            </tr>
-          </thead>
+          <div class="form-inline" style="margin-bottom:15px;">
+            <input type="text" id="m_name" class="form-control" placeholder="Full Name" required>
+            <select id="m_gender" class="form-control">
+              <option value="">Gender</option>
+              <option>Male</option>
+              <option>Female</option>
+              <option>Other</option>
+            </select>
+            <input type="text" id="m_mobile" class="form-control" placeholder="Mobile">
+            <input type="text" id="m_username" class="form-control" placeholder="Username">
+            <label class="checkbox-inline">
+              <input type="checkbox" id="m_present" checked> Present
+            </label>
+            <button type="button" id="addManual" class="btn btn-primary btn-sm">Add</button>
+            <button type="button" id="clearManualList" class="btn btn-default btn-sm">Clear All</button>
+          </div>
 
+          <table class="table table-striped" id="manualTable" style="display:none;">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Gender</th>
+                <th>Mobile</th>
+                <th>Username</th>
+                <th>Present</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="manualTbody"></tbody>
+          </table>
 
-          {% csrf_token %}
-          {%for student in students%}
-          <tr>
-            <td>{{student.get_name}}</td>
-            <td>{{aform.present_status}}</td>
-          </tr>
-          {%endfor%}
-
-
-
-        </table>
-        {% render_field aform.date class="form-control" placeholder="Enter Date mm/dd/yyyy" %}
-        <input type="submit" style="margin-left: 200px;
-
-    margin-top: 20px;
-    margin-bottom: 20px;    background-color: #ffec00;" name="submit" value="submit">
+          <input type="submit" class="btn btn-primary" value="Save Attendance">
+        </div>
       </div>
-
-
     </div>
   </div>
 </form>
 
-<!--
-written By : sumit kumar
-facebook : fb.com/sumit.luv
--->
+<script>
+(function() {
+  var tbody = document.getElementById('manualTbody');
+  var table = document.getElementById('manualTable');
 
+  function toggleTable() {
+    table.style.display = tbody.children.length ? '' : 'none';
+  }
 
+  function addHiddenInput(td, name, value) {
+    var input = document.createElement('input');
+    input.type = 'hidden';
+    input.name = name;
+    input.value = value;
+    td.appendChild(input);
+  }
+
+  document.getElementById('addManual').addEventListener('click', function() {
+    var n = document.getElementById('m_name').value.trim();
+    if (!n) { alert('Enter full name.'); return; }
+    var g = document.getElementById('m_gender').value.trim();
+    var m = document.getElementById('m_mobile').value.trim();
+    var u = document.getElementById('m_username').value.trim();
+    var p = document.getElementById('m_present').checked;
+
+    var tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${n}</td>
+      <td>${g || '—'}</td>
+      <td>${m || '—'}</td>
+      <td>${u || '—'}</td>
+      <td><span class="badge ${p ? 'badge-yes' : 'badge-no'}">${p ? 'Yes' : 'No'}</span></td>
+    `;
+
+    var tdActions = document.createElement('td');
+    addHiddenInput(tdActions, 'manual_name[]', n);
+    addHiddenInput(tdActions, 'manual_gender[]', g);
+    addHiddenInput(tdActions, 'manual_mobile[]', m);
+    addHiddenInput(tdActions, 'manual_username[]', u);
+    addHiddenInput(tdActions, 'manual_present[]', p ? '1' : '0');
+    var removeBtn = document.createElement('button');
+    removeBtn.type = 'button';
+    removeBtn.className = 'btn btn-xs btn-danger';
+    removeBtn.textContent = 'Remove';
+    removeBtn.onclick = function() { tbody.removeChild(tr); toggleTable(); };
+    tdActions.appendChild(removeBtn);
+    tr.appendChild(tdActions);
+
+    tbody.appendChild(tr);
+    toggleTable();
+
+    document.getElementById('m_name').value = '';
+    document.getElementById('m_gender').value = '';
+    document.getElementById('m_mobile').value = '';
+    document.getElementById('m_username').value = '';
+    document.getElementById('m_present').checked = true;
+  });
+
+  document.getElementById('clearManualList').addEventListener('click', function() {
+    tbody.innerHTML = '';
+    toggleTable();
+  });
+
+  toggleTable();
+})();
+</script>
 {% endblock content %}

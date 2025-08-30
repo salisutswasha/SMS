@@ -18,9 +18,9 @@ class TeacherExtra(models.Model):
     course_of_study = models.CharField(max_length=50)
     address = models.TextField(null=True, blank=True)
     salary = models.PositiveIntegerField(default=0)  # Added for admin dashboard
-    status = models.BooleanField(default=False)
+    status = models.BooleanField(default=False) # Ensure default is False
     date_of_birth = models.DateField(null=True, blank=True, verbose_name="Date of Birth")
-
+    
     def __str__(self):
         return self.username.first_name
 
@@ -36,7 +36,7 @@ class TeacherExtra(models.Model):
 # Student Extra Information Model
 class StudentExtra(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-   # gender = models.CharField(max_length=10, choices=[('Male', 'Male'), ('Female', 'Female')])
+    roll = models.CharField(max_length=20, unique=True, null=True, blank=True)  # ✅ new field
     cl = models.CharField("Class", max_length=40, choices=classes, null=True, blank=True)
     mobile = models.CharField(max_length=20, null=True, blank=True)
     email = models.EmailField(null=True, blank=True)
@@ -47,6 +47,7 @@ class StudentExtra(models.Model):
     fee = models.FloatField(default=0.0) 
     gender = models.CharField(max_length=10, choices=[('Male','Male'),('Female','Female'),('Other','Other')], null=True, blank=True)
     middle_name = models.CharField(max_length=100, null=True, blank=True)
+
 
     @property
     def get_name(self):
@@ -83,3 +84,4 @@ class AdminExtra(models.Model):
 
     def __str__(self):
         return self.user.username
+

@@ -1,13 +1,15 @@
-from django.shortcuts import render,redirect,reverse
-from . import forms,models
-from django.db.models import Sum
-from django.contrib.auth.models import Group
-from django.contrib.auth.models import User
+from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponseRedirect
-from django.contrib.auth.decorators import login_required,user_passes_test
+from django.urls import reverse
+from django.contrib.auth.decorators import login_required, user_passes_test
+from django.contrib.auth.models import Group, User
+from django.db.models import Sum
 from django.conf import settings
 from django.core.mail import send_mail
-from django.contrib import messages  # <-- added
+from django.contrib import messages
+from django.utils import timezone
+
+from . import forms, models
 
 def home_view(request):
     if request.user.is_authenticated:
@@ -82,47 +84,66 @@ def admin_signup_view(request):
             return HttpResponseRedirect('adminlogin')
     return render(request,'school/adminsignup.html',{'form':form})
 
+# views.py
+from django.shortcuts import render, redirect
+from django.http import HttpResponseRedirect
+from django.contrib.auth.models import Group
+from . import forms, models
+
 def student_signup_view(request):
-    form1=forms.StudentUserForm()
-    form2=forms.StudentExtraForm()
-    mydict={'form1':form1,'form2':form2}
-    if request.method=='POST':
-        form1=forms.StudentUserForm(request.POST)
-        form2=forms.StudentExtraForm(request.POST)
+    if request.method == 'POST':
+        form1 = forms.StudentUserForm(request.POST)
+        form2 = forms.StudentExtraForm(request.POST)
         if form1.is_valid() and form2.is_valid():
-            user=form1.save()
+            user = form1.save()
             user.set_password(user.password)
             user.save()
-            f2=form2.save(commit=False)
-            f2.user=user
-            user2=f2.save()
+
+            f2 = form2.save(commit=False)
+            f2.user = user                  # StudentExtra uses 'user' FK 
+            # status stays False by model default (pending)
+            f2.save()
 
             my_student_group = Group.objects.get_or_create(name='STUDENT')
             my_student_group[0].user_set.add(user)
 
-        return HttpResponseRedirect('studentlogin')
-    return render(request,'school/studentsignup.html',context=mydict)
+            return HttpResponseRedirect('studentlogin')   # SUCCESS path
+        # INVALID FORM: re-render with errors (do NOT fall through)
+        return render(request, 'school/studentsignup.html', {'form1': form1, 'form2': form2})
+
+    # GET: show empty forms
+    form1 = forms.StudentUserForm()
+    form2 = forms.StudentExtraForm()
+    return render(request, 'school/studentsignup.html', {'form1': form1, 'form2': form2})
+
 
 def teacher_signup_view(request):
-    form1=forms.TeacherUserForm()
-    form2=forms.TeacherExtraForm()
-    mydict={'form1':form1,'form2':form2}
-    if request.method=='POST':
-        form1=forms.TeacherUserForm(request.POST)
-        form2=forms.TeacherExtraForm(request.POST)
+    if request.method == 'POST':
+        form1 = forms.TeacherUserForm(request.POST)
+        form2 = forms.TeacherExtraForm(request.POST)
         if form1.is_valid() and form2.is_valid():
-            user=form1.save()
+            user = form1.save()
             user.set_password(user.password)
             user.save()
-            f2=form2.save(commit=False)
-            f2.user=user
-            user2=f2.save()
+
+            f2 = form2.save(commit=False)
+            f2.username = user                               # TeacherExtra uses 'username' FK
+            if not f2.date_of_application:
+                f2.date_of_application = timezone.now().date()  # required by model
+            # status defaults to False (pending)
+            f2.save()
 
             my_teacher_group = Group.objects.get_or_create(name='TEACHER')
             my_teacher_group[0].user_set.add(user)
 
-        return HttpResponseRedirect('teacherlogin')
-    return render(request,'school/teachersignup.html',context=mydict)
+            return HttpResponseRedirect('teacherlogin')     # redirect ONLY on success
+        # invalid ⇒ fall through and re-render with errors
+    else:
+        form1 = forms.TeacherUserForm()
+        form2 = forms.TeacherExtraForm()
+
+    return render(request, 'school/teachersignup.html', {'form1': form1, 'form2': form2})
+
 
 # --- UPDATED: role checks -----------------------------------------------------
 
@@ -138,35 +159,41 @@ def is_student(user):
 
 # --- UPDATED: after login routing --------------------------------------------
 
+# views.py
+from django.shortcuts import redirect, render
+from django.contrib import messages
+from . import models
+
 def afterlogin_view(request):
-    # Superuser: always allow straight to admin dashboard (no approval needed)
+    # Superuser: straight to admin dashboard
     if request.user.is_superuser:
         return redirect('admin-dashboard')
 
+    # ADMIN branch (AdminExtra uses 'user' FK)
     if is_admin(request.user):
         accountapproval = models.AdminExtra.objects.filter(user_id=request.user.id, status=True)
-        if accountapproval:
+        #                                     ^^^^^^^  (correct for AdminExtra)
+        if accountapproval.exists():
             return redirect('admin-dashboard')
-        else:
-            return render(request,'school/admin_wait_for_approval.html')
+        return render(request, 'school/admin_wait_for_approval.html')
 
-    elif is_teacher(request.user):
-        accountapproval=models.TeacherExtra.objects.filter(user_id=request.user.id,status=True)
-        if accountapproval:
+    # TEACHER branch (TeacherExtra uses 'username' FK)
+    if is_teacher(request.user):
+        accountapproval = models.TeacherExtra.objects.filter(username_id=request.user.id, status=True)
+        #                                     ^^^^^^^^^^^  (must be username_id)
+        if accountapproval.exists():
             return redirect('teacher-dashboard')
-        else:
-            return render(request,'school/teacher_wait_for_approval.html')
+        return render(request, 'school/teacher_wait_for_approval.html')
 
-    elif is_student(request.user):
-        accountapproval=models.StudentExtra.objects.filter(user_id=request.user.id,status=True)
-        if accountapproval:
+    # STUDENT branch (StudentExtra uses 'user' FK)
+    if is_student(request.user):
+        accountapproval = models.StudentExtra.objects.filter(user_id=request.user.id, status=True)
+        #                                     ^^^^^^^  (correct for StudentExtra)
+        if accountapproval.exists():
             return redirect('student-dashboard')
-        else:
-            return render(request,'school/student_wait_for_approval.html')
+        return render(request, 'school/student_wait_for_approval.html')
 
-    # No role assigned: show a message and a gentle page (do NOT auto-logout)
     messages.error(request, "Your account does not have a role yet. Please contact an administrator for access.")
-    # Create a simple template at templates/school/no_role_assigned.html
     return render(request, 'school/no_role_assigned.html')
 
 # ----------------- admin dashboards & other views (unchanged) ----------------
@@ -229,8 +256,9 @@ def admin_add_teacher_view(request):
             user.save()
 
             f2=form2.save(commit=False)
-            f2.user=user
-            f2.status=True
+            f2.username=user
+            if not f2.date_of_application:
+                 f2.date_of_application = timezone.now().date()  
             f2.save()
 
             my_teacher_group = Group.objects.get_or_create(name='TEACHER')
@@ -263,7 +291,7 @@ def approve_teacher_view(request,pk):
 @user_passes_test(is_admin)
 def delete_teacher_view(request,pk):
     teacher=models.TeacherExtra.objects.get(id=pk)
-    user=models.User.objects.get(id=teacher.user_id)
+    user=models.User.objects.get(id=teacher.username_id)
     user.delete()
     teacher.delete()
     return redirect('admin-approve-teacher')
@@ -272,7 +300,7 @@ def delete_teacher_view(request,pk):
 @user_passes_test(is_admin)
 def delete_teacher_from_school_view(request,pk):
     teacher=models.TeacherExtra.objects.get(id=pk)
-    user=models.User.objects.get(id=teacher.user_id)
+    user=models.User.objects.get(id=teacher.username_id)
     user.delete()
     teacher.delete()
     return redirect('admin-view-teacher')
@@ -281,7 +309,7 @@ def delete_teacher_from_school_view(request,pk):
 @user_passes_test(is_admin)
 def update_teacher_view(request,pk):
     teacher=models.TeacherExtra.objects.get(id=pk)
-    user=models.User.objects.get(id=teacher.user_id)
+    user=models.User.objects.get(id=teacher.username_id)
 
     form1=forms.TeacherUserForm(instance=user)
     form2=forms.TeacherExtraForm(instance=teacher)
@@ -296,7 +324,6 @@ def update_teacher_view(request,pk):
             user.set_password(user.password)
             user.save()
             f2=form2.save(commit=False)
-            f2.status=True
             f2.save()
             return redirect('admin-view-teacher')
     return render(request,'school/admin_update_teacher.html',context=mydict)
@@ -329,7 +356,6 @@ def admin_add_student_view(request):
 
             f2=form2.save(commit=False)
             f2.user=user
-            f2.status=True
             f2.save()
 
             my_student_group = Group.objects.get_or_create(name='STUDENT')
@@ -380,7 +406,6 @@ def update_student_view(request,pk):
             user.set_password(user.password)
             user.save()
             f2=form2.save(commit=False)
-            f2.status=True
             f2.save()
             return redirect('admin-view-student')
     return render(request,'school/admin_update_student.html',context=mydict)
@@ -476,12 +501,11 @@ def admin_notice_view(request):
 @login_required(login_url='teacherlogin')
 @user_passes_test(is_teacher)
 def teacher_dashboard_view(request):
-    teacherdata=models.TeacherExtra.objects.all().filter(status=True,user_id=request.user.id)
+    teacherdata=models.TeacherExtra.objects.all().filter(status=True,username_id=request.user.id)
     notice=models.Notice.objects.all()
     mydict={
         'salary':teacherdata[0].salary,
         'mobile':teacherdata[0].mobile,
-        'date':teacherdata[0].joindate,
         'notice':notice
     }
     return render(request,'school/teacher_dashboard.html',context=mydict)
@@ -658,7 +682,7 @@ def reject_admin_email_view(request, pk):
     try:
         admin_extra = models.AdminExtra.objects.get(id=pk, status=False)
         user = admin_extra.user
-        
+
         # Send rejection email to the admin
         try:
             subject = 'Admin Account Application Rejected'
@@ -691,6 +715,7 @@ def reject_admin_email_view(request, pk):
             'admin_name': f"{user.first_name} {user.last_name}",
             'action': 'rejected'
         })
+
     except models.AdminExtra.DoesNotExist:
         return render(request, 'school/admin_approval_error.html', {
             'message': 'Admin not found or already processed'

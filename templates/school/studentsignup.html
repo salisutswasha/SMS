@@ -1,104 +1,33 @@
 <!DOCTYPE html>
-
 {% load widget_tweaks %}
 <html lang="en" dir="ltr">
-
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
   <title>SARZEETECH</title>
   <style type="text/css">
-    body {
-      color: #aa082e;
-      background-color: #b6bde7;
-      font-family: 'Roboto', sans-serif;
-    }
-
-    a:link {
-      text-decoration: none;
-    }
-
-    .note {
-      text-align: center;
-      height: 80px;
-      background: -webkit-linear-gradient(left, #0072ff, #8811c5);
-      color: #fff;
-      font-weight: bold;
-      line-height: 80px;
-    }
-
-    .form-content {
-      padding: 5%;
-      border: 1px solid #ced4da;
-      margin-bottom: 2%;
-    }
-
-    .form-control {
-      border-radius: 1.5rem;
-    }
-
-    .btnSubmit {
-      border: none;
-      border-radius: 1.5rem;
-      padding: 1%;
-      width: 20%;
-      cursor: pointer;
-      background: #0062cc;
-      color: #fff;
-      display: block;
-      margin: 20px auto 0 auto; /* centers the button */
-    }
-
-    /* Center alignment additions */
-    .register-form {
-      max-width: 960px;
-      margin: 0 auto;
-    }
-
-    .form-content {
-      max-width: 860px;
-      margin: 0 auto;
-    }
-
-    .row {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 20px;
-    }
-
-    .col-md-6 {
-      flex: 0 1 400px;
-      padding: 0 10px;
-    }
-
-    .form-group {
-      text-align: center;
-    }
-
-    .form-control {
-      max-width: 360px;
-      margin: 0 auto;
-      width: 100%;
-    }
-
-    @media (max-width: 768px) {
-      .col-md-6 {
-        flex: 1 1 100%;
-      }
-      .btnSubmit {
-        width: 60%;
-      }
-    }
+    body { color:#aa082e; background-color:#b6bde7; font-family:'Roboto',sans-serif; }
+    a:link { text-decoration:none; }
+    .note { text-align:center; height:80px; background:-webkit-linear-gradient(left,#0072ff,#8811c5); color:#fff; font-weight:bold; line-height:80px; }
+    .form-content { padding:5%; border:1px solid #ced4da; margin-bottom:2%; }
+    .form-control { border-radius:1.5rem; max-width:360px; margin:0 auto; width:100%; }
+    .btnSubmit { border:none; border-radius:1.5rem; padding:1%; width:20%; cursor:pointer; background:#0062cc; color:#fff; display:block; margin:20px auto 0; }
+    .register-form { max-width:960px; margin:0 auto; }
+    .form-content { max-width:860px; margin:0 auto; }
+    .row { display:flex; flex-wrap:wrap; justify-content:center; gap:20px; }
+    .col-md-6 { flex:0 1 400px; padding:0 10px; }
+    .form-group { text-align:center; margin-bottom:14px; }
+    .errorlist { list-style:none; padding:0; margin:6px 0 0; color:#b00020; font-size:0.92rem; }
+    .alert { max-width:860px; margin:0 auto 14px; padding:10px 14px; border-radius:10px; background:#ffe6e9; color:#b00020; }
+    @media (max-width:768px){ .col-md-6{flex:1 1 100%;} .btnSubmit{width:60%;} }
   </style>
 </head>
-
 <body>
   {% include "school/navbar.html" %}
   <br /><br /><br /><br />
 
-  <!--- signup page for student admission by admin (sumit) --->
-  <form method="post">
+  <!-- Student admission -->
+  <form method="post" action="">
     {% csrf_token %}
     <div class="container register-form">
       <div class="form">
@@ -106,46 +35,79 @@
           <p>New Admission To School</p>
         </div>
 
+        {# Top-level error banner #}
+        {% if form1.errors or form2.errors %}
+          <div class="alert">
+            <strong>Please fix the errors below.</strong>
+            {{ form1.non_field_errors }}
+            {{ form2.non_field_errors }}
+          </div>
+        {% endif %}
+
         <div class="form-content">
           <div class="row">
             <div class="col-md-12">
+
               <div class="form-group">
-                {% render_field form1.first_name class="form-control" placeholder="First Name" %}
-              </div>
-              <div class="form-group">
-                {% render_field form2.middle_name class="form-control" placeholder="Middle Name" %}
-              </div>
-              <div class="form-group">
-                {% render_field form1.last_name class="form-control" placeholder="Last Name" %}
-              </div>
-              <div class="form-group">
-                {% render_field form2.gender class="form-control" placeholder="Gender" %}
-              </div>
-              <div class="form-group">
-                {% render_field form1.email class="form-control" placeholder="Email Address" %}
-              </div>
-              <div class="form-group">
-                {% render_field form2.mobile class="form-control" placeholder="Mobile Number" %}
-              </div>
-              <div class="form-group">
-                {% render_field form2.date_of_birth class="form-control" %}
-              </div>
-              <div class="form-group">
-                {% render_field form2.state_of_origin class="form-control" placeholder="State of Origin" %}
+                {% render_field form1.first_name class="form-control" placeholder="First Name" autocomplete="given-name" %}
+                {{ form1.first_name.errors }}
               </div>
 
               <div class="form-group">
-                {% render_field form1.username class="form-control" placeholder="Username" %}
+                {% render_field form2.middle_name class="form-control" placeholder="Middle Name" autocomplete="additional-name" %}
+                {{ form2.middle_name.errors }}
               </div>
+
               <div class="form-group">
-                {% render_field form1.password class="form-control" placeholder="Password" %}
+                {% render_field form1.last_name class="form-control" placeholder="Last Name" autocomplete="family-name" %}
+                {{ form1.last_name.errors }}
               </div>
+
               <div class="form-group">
-                {% render_field form1.confirm_password class="form-control" placeholder="Confirm Password" %}
+                {% render_field form2.gender class="form-control" %}
+                {{ form2.gender.errors }}
               </div>
+
+              <div class="form-group">
+                {% render_field form1.email class="form-control" placeholder="Email Address" autocomplete="email" %}
+                {{ form1.email.errors }}
+              </div>
+
+              <div class="form-group">
+                {% render_field form2.mobile class="form-control" placeholder="Mobile Number" autocomplete="tel" %}
+                {{ form2.mobile.errors }}
+              </div>
+
+              <div class="form-group">
+                {% render_field form2.date_of_birth class="form-control" %}
+                {{ form2.date_of_birth.errors }}
+              </div>
+
+              <div class="form-group">
+                {% render_field form2.state_of_origin class="form-control" placeholder="State of Origin" %}
+                {{ form2.state_of_origin.errors }}
+              </div>
+
+              <div class="form-group">
+                {% render_field form1.username class="form-control" placeholder="Username" autocomplete="username" %}
+                {{ form1.username.errors }}
+              </div>
+
+              <div class="form-group">
+                {% render_field form1.password class="form-control" placeholder="Password" autocomplete="new-password" %}
+                {{ form1.password.errors }}
+              </div>
+
+              <div class="form-group">
+                {% render_field form1.confirm_password class="form-control" placeholder="Confirm Password" autocomplete="new-password" %}
+                {{ form1.confirm_password.errors }}
+              </div>
+
               <div class="form-group">
                 {% render_field form2.address class="form-control" placeholder="Address" rows="3" %}
+                {{ form2.address.errors }}
               </div>
+
             </div>
           </div>
 
@@ -158,5 +120,4 @@
 
   {% include "school/footer.html" %}
 </body>
-
 </html>
