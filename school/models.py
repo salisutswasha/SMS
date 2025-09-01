@@ -20,6 +20,7 @@ class TeacherExtra(models.Model):
     salary = models.PositiveIntegerField(default=0)  # Added for admin dashboard
     status = models.BooleanField(default=False) # Ensure default is False
     date_of_birth = models.DateField(null=True, blank=True, verbose_name="Date of Birth")
+    joining_date = models.DateField(null=True, blank=True)
     
     def __str__(self):
         return self.username.first_name

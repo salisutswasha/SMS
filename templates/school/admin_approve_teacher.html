@@ -25,9 +25,9 @@
         <thead>
           <tr>
             <th>Name</th>
-            <th>Qualification</th>
             <th>Mobile</th>
             <th>Date Applied</th>
+            <th>Course of Study</th>
             <th>Approve</th>
             <th>Delete</th>
           </tr>
@@ -35,9 +35,9 @@
         {% for t in teachers %}
         <tr>
           <td>{{ t.get_name }}</td>
-          <td>{{ t.qualification|default:"—" }}</td>
           <td>{{ t.mobile|default:"—" }}</td>
           <td>{{ t.date_of_application|date:"Y-m-d" }}</td>
+          <td>{{ t.course_of_study }}</td>
           <td>
             <a class="btn btn-primary btn-xs" href="{% url 'approve-teacher' t.id %}">
               <span class="glyphicon glyphicon-ok"></span>

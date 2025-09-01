@@ -1,0 +1,64 @@
+{% extends 'school/adminbase.html' %}
+
+{% block content %}
+<head>
+  <link href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css" rel="stylesheet">
+  <script src="//netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.min.js"></script>
+  <script src="//code.jquery.com/jquery-1.11.1.min.js"></script>
+
+  <style>
+    .panel {
+      margin-top: 50px;
+    }
+    .panel-heading h3 {
+      margin: 0;
+      text-align: center;
+    }
+    .form-group label {
+      font-weight: bold;
+    }
+    .btn-block {
+      margin-top: 15px;
+    }
+    .back-link {
+      display: block;
+      margin-top: 20px;
+      text-align: center;
+    }
+  </style>
+</head>
+
+<div class="container">
+  <div class="row">
+    <div class="col-md-6 col-md-offset-3">
+
+      <div class="panel panel-primary">
+        <div class="panel-heading">
+          <h3 class="panel-title">Edit Salary & Joining Date</h3>
+        </div>
+
+        <div class="panel-body">
+          <form method="post">
+            {% csrf_token %}
+
+            <div class="form-group">
+              <label for="salary">Salary</label>
+              <input type="number" class="form-control" name="salary" id="salary" value="{{ teacher.salary }}" required>
+            </div>
+
+            <div class="form-group">
+              <label for="joining_date">Joining Date</label>
+              <input type="date" class="form-control" name="joining_date" id="joining_date" value="{{ teacher.joining_date|date:'Y-m-d' }}">
+            </div>
+
+            <button type="submit" class="btn btn-success btn-block">Save Changes</button>
+          </form>
+
+          <a href="{% url 'admin-view-teacher' %}" class="back-link">← Back to Teachers</a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+{% endblock %}

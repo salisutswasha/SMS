@@ -27,7 +27,7 @@
 
 
 <!--
-written By : sumit kumar
+written By : salisu tswasha
 facebook : fb.com/sumit.luv
 -->
 
@@ -49,18 +49,20 @@ facebook : fb.com/sumit.luv
                     <th>Mobile</th>
                     <th>Salary</th>
                     <th>Joining Date</th>
+                    <th>Course of Study</th>
                     <th>Update</th>
                     <th>Delete</th>
                 </tr>
             </thead>
-            {% for t in teachers %}
+            {% for teacher in teachers %}
               <tr>
-                  <td> {{t.get_name}}</td>
-                  <td>{{t.mobile}}</td>
-                  <td>{{t.salary}}</td>
-                  <td>{{t.joindate}}</td>
-                  <td><a class="btn btn-primary btn-xs" href="{% url 'update-teacher' t.id  %}"  ><span class="glyphicon glyphicon-edit"></span></a></td>
-                  <td><a class="btn btn-danger btn-xs" href="{% url 'delete-teacher-from-school' t.id  %}"  ><span class="glyphicon glyphicon-trash"></span></a></td>
+                  <td> {{teacher.get_name}}</td>
+                  <td>{{teacher.mobile}}</td>
+                  <td>{{teacher.salary}}</td>
+                  <td>{{ teacher.joining_date }}</td>
+                  <td>{{ teacher.course_of_study }}</td>
+                  <td><a class="btn btn-primary btn-xs" href="{% url 'update-teacher' teacher.id  %}"  ><span class="glyphicon glyphicon-edit"></span></a></td>
+                  <td><a class="btn btn-danger btn-xs" href="{% url 'delete-teacher-from-school' teacher.id  %}"  ><span class="glyphicon glyphicon-trash"></span></a></td>
 
               </tr>
 

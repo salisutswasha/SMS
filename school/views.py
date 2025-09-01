@@ -281,11 +281,12 @@ def admin_approve_teacher_view(request):
 
 @login_required(login_url='adminlogin')
 @user_passes_test(is_admin)
-def approve_teacher_view(request,pk):
-    teacher=models.TeacherExtra.objects.get(id=pk)
-    teacher.status=True
+def approve_teacher_view(request, pk):
+    teacher = models.TeacherExtra.objects.get(id=pk)
+    teacher.status = True
     teacher.save()
-    return redirect(reverse('admin-approve-teacher'))
+    # Redirect to salary assignment page after approval
+    return redirect('admin-edit-teacher-salary', pk=teacher.id)
 
 @login_required(login_url='adminlogin')
 @user_passes_test(is_admin)
@@ -307,26 +308,23 @@ def delete_teacher_from_school_view(request,pk):
 
 @login_required(login_url='adminlogin')
 @user_passes_test(is_admin)
-def update_teacher_view(request,pk):
-    teacher=models.TeacherExtra.objects.get(id=pk)
-    user=models.User.objects.get(id=teacher.username_id)
-
-    form1=forms.TeacherUserForm(instance=user)
-    form2=forms.TeacherExtraForm(instance=teacher)
-    mydict={'form1':form1,'form2':form2}
-
-    if request.method=='POST':
-        form1=forms.TeacherUserForm(request.POST,instance=user)
-        form2=forms.TeacherExtraForm(request.POST,instance=teacher)
-        print(form1)
+def update_teacher_view(request, pk):
+    teacher = models.TeacherExtra.objects.get(id=pk)
+    user = models.User.objects.get(id=teacher.username_id)
+    form1 = forms.TeacherUserForm(instance=user)
+    form2 = forms.TeacherExtraForm(instance=teacher)
+    mydict = {'form1': form1, 'form2': form2}
+    if request.method == 'POST':
+        form1 = forms.TeacherUserForm(request.POST, instance=user)
+        form2 = forms.TeacherExtraForm(request.POST, instance=teacher)
         if form1.is_valid() and form2.is_valid():
-            user=form1.save()
+            user = form1.save()
             user.set_password(user.password)
             user.save()
-            f2=form2.save(commit=False)
+            f2 = form2.save(commit=False)
             f2.save()
             return redirect('admin-view-teacher')
-    return render(request,'school/admin_update_teacher.html',context=mydict)
+    return render(request, 'school/admin_update_teacher.html', context=mydict)
 
 @login_required(login_url='adminlogin')
 @user_passes_test(is_admin)
@@ -720,3 +718,18 @@ def reject_admin_email_view(request, pk):
         return render(request, 'school/admin_approval_error.html', {
             'message': 'Admin not found or already processed'
         })
+
+@login_required(login_url='adminlogin')
+@user_passes_test(is_admin)
+def admin_edit_teacher_salary_view(request, pk):
+    teacher = models.TeacherExtra.objects.get(id=pk)
+    if request.method == 'POST':
+        salary = request.POST.get('salary')
+        joining_date = request.POST.get('joining_date')
+        if salary is not None and salary.isdigit():
+            teacher.salary = int(salary)
+        if joining_date:
+            teacher.joining_date = joining_date
+        teacher.save()
+        return redirect('admin-view-teacher')
+    return render(request, 'school/admin_edit_teacher_salary.html', {'teacher': teacher})
