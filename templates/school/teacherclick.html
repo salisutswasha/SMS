@@ -1,19 +1,18 @@
 {% extends 'school/homebase.html' %}
+
 {% block content %}
-<br>
-<br>
-<div class="jumbotron" style="margin-bottom:0px;">
-  <h1 class="display-4">Hello, Teacher</h1>
-  <p class="lead">Welcome to School Management System.</p>
-  <hr class="my-4">
-  <p>You can access various features after Login.</p>
-  <p class="lead">
-    <a class="btn btn-primary btn-lg" href="teachersignup" role="button">Apply For Job</a>
-    <a class="btn btn-primary btn-lg" href="teacherlogin" role="button">Login</a>
-  </p>
+<div class="container d-flex justify-content-center align-items-center" style="min-height: 80vh;">
+  <div class="card shadow-lg border-0 w-50">
+    <div class="card-body text-center p-5">
+      <h1 class="fw-bold mb-3">Hello, Teacher</h1>
+      <p class="text-muted mb-4">Welcome to the School Management System</p>
+      <hr class="my-4">
+      <p class="mb-4">Please Log in if you have an account or Sign up below.</p>
+      <div class="d-flex justify-content-center gap-3">
+        <a href="{% url 'teachersignup' %}" class="btn btn-primary px-4">Apply For Job</a>
+        <a href="{% url 'teacherlogin' %}" class="btn btn-outline-secondary px-4">Login</a>
+      </div>
+    </div>
+  </div>
 </div>
-{% endblock content %}
-<!--
-written By : salisu tswasha
-facebook : fb.com/sumit.luv
--->
+{% endblock %}

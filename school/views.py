@@ -8,6 +8,8 @@ from django.conf import settings
 from django.core.mail import send_mail
 from django.contrib import messages
 from django.utils import timezone
+from django.contrib.auth import authenticate, login
+from django.contrib.auth.forms import AuthenticationForm
 
 from . import forms, models
 
@@ -281,12 +283,11 @@ def admin_approve_teacher_view(request):
 
 @login_required(login_url='adminlogin')
 @user_passes_test(is_admin)
-def approve_teacher_view(request, pk):
-    teacher = models.TeacherExtra.objects.get(id=pk)
-    teacher.status = True
+def approve_teacher_view(request,pk):
+    teacher=models.TeacherExtra.objects.get(id=pk)
+    teacher.status=True
     teacher.save()
-    # Redirect to salary assignment page after approval
-    return redirect('admin-edit-teacher-salary', pk=teacher.id)
+    return redirect(reverse('admin-approve-teacher'))
 
 @login_required(login_url='adminlogin')
 @user_passes_test(is_admin)
@@ -321,8 +322,7 @@ def update_teacher_view(request, pk):
             user = form1.save()
             user.set_password(user.password)
             user.save()
-            f2 = form2.save(commit=False)
-            f2.save()
+            form2.save()  
             return redirect('admin-view-teacher')
     return render(request, 'school/admin_update_teacher.html', context=mydict)
 
@@ -417,16 +417,22 @@ def admin_approve_student_view(request):
 @login_required(login_url='adminlogin')
 @user_passes_test(is_admin)
 def approve_student_view(request,pk):
-    students=models.StudentExtra.objects.get(id=pk)
-    students.status=True
-    students.save()
-    return redirect(reverse('admin-approve-student'))
+    student = models.StudentExtra.objects.get(id=pk)
+    student.status = True
+    student.save()
+    return redirect('admin-edit-student-fee', pk=student.id)
 
 @login_required(login_url='adminlogin')
 @user_passes_test(is_admin)
 def admin_view_student_fee_view(request,cl):
     students=models.StudentExtra.objects.all()
     return render(request,'school/admin_view_student_fee.html',{'students':students})
+
+@login_required(login_url='adminlogin')
+@user_passes_test(is_admin)
+def admin_view_student_fee_all_view(request):
+    students = models.StudentExtra.objects.all()
+    return render(request, 'school/admin_view_student_fee.html', {'students': students, 'cl': 'All'})
 
 @login_required(login_url='adminlogin')
 @user_passes_test(is_admin)
@@ -725,11 +731,99 @@ def admin_edit_teacher_salary_view(request, pk):
     teacher = models.TeacherExtra.objects.get(id=pk)
     if request.method == 'POST':
         salary = request.POST.get('salary')
-        joining_date = request.POST.get('joining_date')
         if salary is not None and salary.isdigit():
             teacher.salary = int(salary)
-        if joining_date:
-            teacher.joining_date = joining_date
-        teacher.save()
-        return redirect('admin-view-teacher')
+            teacher.save()
+            return redirect('admin-view-teacher')
     return render(request, 'school/admin_edit_teacher_salary.html', {'teacher': teacher})
+
+@login_required(login_url='adminlogin')
+@user_passes_test(is_admin)
+def admin_edit_student_fee_view(request, pk):
+    student = models.StudentExtra.objects.get(id=pk)
+    if request.method == 'POST':
+        fee = request.POST.get('fee')
+        if fee is not None:
+            try:
+                student.fee = float(fee)
+                student.save()
+                return redirect('admin-view-student')
+            except ValueError:
+                pass  # Optionally, add error handling here
+    return render(request, 'school/admin_edit_student_fee.html', {'student': student})
+
+@login_required
+def teacher_dashboard(request):
+    teacher = Teacher.objects.get(user=request.user)
+    notice = Notice.objects.all()
+    return render(request, 'school/teacher_dashboard.html', {
+        'teacher': teacher,
+        'notice': notice
+    })
+
+
+def custom_login_view(request):
+    if request.method == 'POST':
+        form = AuthenticationForm(request, data=request.POST)
+        username = request.POST.get('username')
+        if not User.objects.filter(username=username).exists():
+            return render(request, 'school/no_account.html')
+        if form.is_valid():
+            user = authenticate(request, username=form.cleaned_data['username'], password=form.cleaned_data['password'])
+            if user is not None:
+                login(request, user)
+                return redirect('afterlogin')
+        # If authentication fails, show the form with errors
+        return render(request, 'school/login.html', {'form': form})
+    else:
+        form = AuthenticationForm()
+    return render(request, 'school/login.html', {'form': form})
+
+def student_login_view(request):
+    if request.method == 'POST':
+        form = AuthenticationForm(request, data=request.POST)
+        username = request.POST.get('username')
+        if not User.objects.filter(username=username).exists():
+            return render(request, 'school/no_account.html')  # Show "no account" page
+        if form.is_valid():
+            user = authenticate(request, username=form.cleaned_data['username'], password=form.cleaned_data['password'])
+            if user is not None:
+                login(request, user)
+                return redirect('afterlogin')
+        return render(request, 'school/studentlogin.html', {'form': form})
+    else:
+        form = AuthenticationForm()
+    return render(request, 'school/studentlogin.html', {'form': form})
+
+def teacher_login_view(request):
+    if request.method == 'POST':
+        form = AuthenticationForm(request, data=request.POST)
+        username = request.POST.get('username')
+        if not User.objects.filter(username=username).exists():
+            return render(request, 'school/no_account.html')
+        if form.is_valid():
+            user = authenticate(request, username=form.cleaned_data['username'], password=form.cleaned_data['password'])
+            if user is not None:
+                login(request, user)
+                return redirect('afterlogin')
+        return render(request, 'school/teacherlogin.html', {'form': form})
+    else:
+        form = AuthenticationForm()
+    return render(request, 'school/teacherlogin.html', {'form': form})
+
+def admin_login_view(request):
+    if request.method == 'POST':
+        form = AuthenticationForm(request, data=request.POST)
+        username = request.POST.get('username')
+        if not User.objects.filter(username=username).exists():
+            return render(request, 'school/no_account.html')
+        if form.is_valid():
+            user = authenticate(request, username=form.cleaned_data['username'], password=form.cleaned_data['password'])
+            if user is not None:
+                login(request, user)
+                return redirect('afterlogin')
+        return render(request, 'school/adminlogin.html', {'form': form})
+    else:
+        form = AuthenticationForm()
+    return render(request, 'school/adminlogin.html', {'form': form})
+

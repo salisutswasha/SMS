@@ -1,4 +1,5 @@
 {% extends 'school/adminbase.html' %}
+{% load widget_tweaks %}
 {% block content %}
 <head>
   <style media="screen">
@@ -19,6 +20,8 @@
       padding: 5%;
       border: 1px solid #ced4da;
       margin-bottom: 2%;
+      border-radius: 1rem;
+      background: #f9f9f9;
     }
 
     .form-control {
@@ -29,20 +32,26 @@
       border: none;
       border-radius: 1.5rem;
       padding: 1%;
-      width: 20%;
+      width: 30%;
       cursor: pointer;
       background: #0062cc;
       color: #fff;
+      font-weight: bold;
+    }
+
+    .back-link {
+      display: inline-block;
+      margin: 15px 0;
+      font-weight: bold;
+      color: #0062cc;
     }
   </style>
 
   <link href="//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
   <script src="//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js"></script>
   <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-
 </head>
 
-<!------ signup page for teacher by admin(sumit) ---------->
 <form method="post">
   {% csrf_token %}
   <div class="container register-form">
@@ -64,6 +73,7 @@
               {% render_field form2.mobile class="form-control" placeholder="Mobile" %}
             </div>
           </div>
+
           <div class="col-md-6">
             <div class="form-group">
               {% render_field form1.last_name class="form-control" placeholder="Last Name" %}
@@ -76,17 +86,17 @@
             </div>
           </div>
         </div>
-        <button type="submit" class="btnSubmit">Submit</button>
+
+        <div class="text-center">
+          <button type="submit" class="btnSubmit">Save Changes</button>
+        </div>
       </div>
     </div>
   </div>
-
 </form>
-<a href="{% url 'admin-view-teacher' %}">Back to Teachers</a>
 
-<!--
-written By : salisu tswasha
-facebook : fb.com/sumit.luv
--->
+<div class="container text-center">
+  <a href="{% url 'admin-view-teacher' %}" class="back-link">⬅ Back to Teachers</a>
+</div>
 
 {% endblock content %}

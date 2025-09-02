@@ -1,59 +1,129 @@
 {% extends 'school/studentbase.html' %}
-{% load static %}
-
-
-
+{% load widget_tweaks %}
 
 {% block content %}
-
 <head>
-  <style media="screen">
-    .alert {
-      margin-left: 25%;
-      margin-right: 25%;
+  <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+  <style>
+    body {
+      font-family: 'Roboto', sans-serif;
+    }
+
+    .card {
+      border-radius: 8px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+      margin-bottom: 20px;
       padding: 20px;
-      background-color: #f44336;
-      color: white;
+      transition: 0.3s;
     }
-
-    .w3-panel p {
-      padding-top: 10px;
+    .card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 5px 15px rgba(0,0,0,0.3);
     }
-
-    .closebtn {
-      margin-left: 15px;
-      color: white;
+    .card h6 {
       font-weight: bold;
-      float: right;
-      font-size: 22px;
-      line-height: 20px;
+      margin-bottom: 15px;
+      text-align: center;
+    }
+    .form-control {
+      border-radius: 10px;
+      margin-bottom: 15px;
+    }
+    .btnSubmit {
+      border: none;
+      border-radius: 1.5rem;
+      padding: 10px 25px;
+      background: #0062cc;
+      color: #fff;
       cursor: pointer;
       transition: 0.3s;
     }
-
+    .btnSubmit:hover {
+      background: #004a99;
+    }
+    .notice {
+      padding: 15px;
+      margin-bottom: 10px;
+      border-radius: 5px;
+      background-color: #f1f1f1;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    .notice strong {
+      color: #0062cc;
+    }
+    .closebtn {
+      margin-left: 15px;
+      color: #555;
+      font-weight: bold;
+      float: right;
+      font-size: 22px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
     .closebtn:hover {
-      color: black;
+      color: #000;
+    }
+    /* Layout for form and notice side by side */
+    .dashboard-row {
+      display: flex;
+      justify-content: center; /* center horizontally */
+      align-items: flex-start; /* align top edges */
+      flex-wrap: wrap;
+      gap: 30px;
+      margin-top: 50px;
+      margin-bottom: 50px;
+    }
+    .dashboard-col {
+      flex: 1;
+      min-width: 300px;
+      max-width: 500px;
     }
   </style>
-  <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
-
 </head>
-<br>
 
-{%include 'school/student_dashboard_cards.html'%}
+<div class="container">
+  <!-- Dashboard Cards -->
+  {% include 'school/student_dashboard_cards.html' %}
 
-<br><br>
-<div class="w3-panel w3-blue ">
-  <p>Notice Board</p>
-</div><br>
-{%for n in notice%}
-<div class="alert">
-  <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>
-  <strong>{{n.date}} || By : {{n.by}}</strong><br> {{n.message}}
+  <!-- Centered Row for Attendance and Notice -->
+  <div class="dashboard-row">
+
+    <!-- Mark Attendance Form -->
+    <div class="dashboard-col">
+      <div class="card bg-light">
+        <h6>Mark Attendance</h6>
+        <form method="post">
+          {% csrf_token %}
+          <div class="row">
+            <div class="col-md-6">
+              {% render_field aform.student_name class="form-control" placeholder="Enter student full name" %}
+            </div>
+            <div class="col-md-6">
+              {% render_field aform.present_status class="form-control" %}
+            </div>
+          </div>
+          {% render_field aform.date class="form-control" placeholder="Enter Date mm/dd/yyyy" %}
+          <div class="text-center">
+            <input type="submit" class="btnSubmit" value="Submit">
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Notice Board -->
+    <div class="dashboard-col">
+      <div class="w3-panel w3-blue card">
+        <p style="text-align:center;">Notice Board</p>
+      </div>
+      {% for n in notice %}
+      <div class="notice">
+        <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>
+        <strong>{{ n.date }} || By: {{ n.by }}</strong><br>
+        {{ n.message }}
+      </div>
+      {% endfor %}
+    </div>
+
+  </div>
 </div>
-{%endfor%}
-
-
-
-
 {% endblock content %}

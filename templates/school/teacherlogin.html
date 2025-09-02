@@ -1,106 +1,103 @@
 <!DOCTYPE html>
 {% load widget_tweaks %}
-<html lang="en" dir="ltr">
+<html lang="en">
 
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-  <title>SARZEETECH</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SARZEETECH - Teacher Login</title>
 
+  <!-- Bootstrap -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 
-  <style type="text/css">
+  <style>
     body {
-      color: #aa082e;
-      background-color: #b6bde7;
+      background: linear-gradient(to right, #0072ff, #8811c5);
       font-family: 'Roboto', sans-serif;
     }
 
-    a:link {
-      text-decoration: none;
+    .login-card {
+      max-width: 450px;
+      margin: 60px auto;
+      border-radius: 15px;
+      overflow: hidden;
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+      background: #fff;
     }
 
-    .note {
-      text-align: center;
-      height: 80px;
-      background: -webkit-linear-gradient(left, #0072ff, #8811c5);
+    .login-header {
+      background: linear-gradient(to right, #0072ff, #8811c5);
       color: #fff;
-      font-weight: bold;
-      line-height: 80px;
+      text-align: center;
+      padding: 25px 15px;
     }
 
-    .form-content {
-      padding: 5%;
-      border: 1px solid #ced4da;
-      margin-bottom: 2%;
+    .login-header h3 {
+      margin: 0;
+      font-weight: 700;
+    }
+
+    .login-body {
+      padding: 30px;
     }
 
     .form-control {
-      border-radius: 1.5rem;
+      border-radius: 10px;
+      padding: 12px;
     }
 
-    .btnSubmit {
-      border: none;
-      border-radius: 1.5rem;
-      padding: 1%;
-      width: 20%;
-      cursor: pointer;
-      background: #0062cc;
+    .btn-login {
+      border-radius: 10px;
+      padding: 12px;
+      width: 100%;
+      background: #0072ff;
       color: #fff;
+      font-weight: 600;
+    }
+
+    .btn-login:hover {
+      background: #0056c9;
+    }
+
+    .signup-link {
+      margin-top: 15px;
+      font-size: 0.9rem;
+    }
+
+    .signup-link a {
+      color: #8811c5;
+      font-weight: 600;
     }
   </style>
-
-
-
-
-
-
 </head>
 
 <body>
   {% include "school/navbar.html" %}
-  <br>
-  <br>
-  <br><br>
 
-  <!--- signup page for teacher by admin(sumit)  ---------->
-  <form method="post">
-    {% csrf_token %}
-    <div class="container register-form">
-      <div class="form">
-        <div class="note">
-          <p>Teacher Login Page</p>
-        </div>
-
-        <div class="form-content">
-          <div class="row">
-            <div class="col-md-6">
-
-              <div class="form-group">
-                {% render_field form.username class="form-control" placeholder="Username" %}
-              </div>
-
-            </div>
-            <div class="col-md-6">
-
-              <div class="form-group">
-                {% render_field form.password class="form-control" placeholder="Password" %}
-              </div>
-
-            </div>
+  <div class="container">
+    <div class="login-card">
+      <div class="login-header">
+        <h3>Teacher Login</h3>
+      </div>
+      <div class="login-body">
+        <form method="post">
+          {% csrf_token %}
+          <div class="mb-3">
+            {% render_field form.username class="form-control" placeholder="Username" %}
           </div>
-          <button type="submit" class="btnSubmit">Login</button>
-          <div class="text-center">Do not have account? <a href="teachersignup">Signup here</a></div>
+          <div class="mb-3">
+            {% render_field form.password class="form-control" placeholder="Password" %}
+          </div>
+          <button type="submit" class="btn btn-login">Login</button>
+        </form>
+
+        <div class="text-center signup-link">
+          Don’t have an account? <a href="{% url 'teachersignup' %}">Sign up here</a>
         </div>
       </div>
     </div>
+  </div>
 
-  </form>
-
-  <br><br><br>
-  <!--
-written By : salisu tswasha
-facebook : fb.com/sumit.luv
--->
   {% include "school/footer.html" %}
 </body>
 

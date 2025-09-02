@@ -1,0 +1,50 @@
+{% extends 'school/adminbase.html' %}
+
+{% block content %}
+<head>
+  <link href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
+  <script src="//netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.min.js"></script>
+  <script src="//code.jquery.com/jquery-1.11.1.min.js"></script>
+
+  <style>
+    .edit-fee-container {
+      margin: 80px auto;
+      max-width: 500px;
+    }
+    .panel-heading {
+      background-color: #337ab7 !important;
+      color: white !important;
+      text-align: center;
+    }
+    .form-group label {
+      font-weight: bold;
+    }
+    .btn-primary {
+      border-radius: 20px;
+      padding: 8px 20px;
+    }
+    .btn-default {
+      border-radius: 20px;
+    }
+  </style>
+</head>
+
+<div class="container edit-fee-container">
+  <div class="panel panel-primary">
+    <div class="panel-heading">
+      <h4 class="panel-title">Edit Fee for {{ student.get_name }}</h4>
+    </div>
+    <div class="panel-body">
+      <form method="post">
+        {% csrf_token %}
+        <div class="form-group">
+          <label for="fee">Fee Amount</label>
+          <input type="number" step="0.01" name="fee" id="fee" value="{{ student.fee }}" class="form-control" required>
+        </div>
+        <button type="submit" class="btn btn-primary">💾 Save</button>
+        <a href="{% url 'admin-view-student' %}" class="btn btn-default">⬅ Back to Students</a>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}
